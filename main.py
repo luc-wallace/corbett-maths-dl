@@ -13,7 +13,7 @@ for el in r.html.find(".entry-content p"):
         int(el.text[0])
     except (ValueError, IndexError):
         continue
-    
+
     month = el.text.split()[1].strip()
     if month not in links:
         links[month] = []
@@ -48,6 +48,7 @@ def fetch_month(month, days):
                     f.write(pdf.content)
                     print(f"Wrote {filename}")
                 break
+
 
 for month, days in links.items():
     Thread(target=fetch_month, args=(month, days)).start()
