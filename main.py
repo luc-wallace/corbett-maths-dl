@@ -1,3 +1,4 @@
+import time
 from requests_html import HTMLSession
 import os
 from threading import Thread
@@ -36,11 +37,17 @@ def fetch_month(month, days):
 
     for i, day in enumerate(days):
         for diff, link in day.items():
-            pdf = session.get(link)
-            filename = f"./{month}/{str(i+1).zfill(2)}-{month[:3]}-{diff}.pdf"
-            with open(filename, "wb") as f:
-                f.write(pdf.content)
-                print(f"Wrote {filename}")
+            while True:
+                pdf = session.get(link)
+                if pdf.status_code == 429:
+                    print("Rate limited, waiting...")
+                    time.sleep(0.5)
+                    continue
+                filename = f"./{month}/{str(i+1).zfill(2)}-{month[:3]}-{diff}.pdf"
+                with open(filename, "wb") as f:
+                    f.write(pdf.content)
+                    print(f"Wrote {filename}")
+                break
 
 for month, days in links.items():
     Thread(target=fetch_month, args=(month, days)).start()
